@@ -1,6 +1,7 @@
 package com.example.trelloclone
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 class BoardsActivity : AppCompatActivity() {
 
     private lateinit var boardNameEditText: EditText
+    private lateinit var backToHome: Button
     private lateinit var addBoardButton: Button
     private lateinit var boardContainer: LinearLayout
     private lateinit var sharedPreferences: SharedPreferences
@@ -26,14 +28,18 @@ class BoardsActivity : AppCompatActivity() {
         boardNameEditText = findViewById(R.id.boardNameEditText)
         addBoardButton = findViewById(R.id.addBoardButton)
         boardContainer = findViewById(R.id.boardContainer)
-
+        backToHome = findViewById(R.id.backToHomeButton)
         // Initialisation de SharedPreferences
         sharedPreferences = getSharedPreferences("TrelloClone", Context.MODE_PRIVATE)
 
         // Afficher la liste des tableaux
         loadBoards()
-
-        // Ajouter un tableau au clic du bouton
+        backToHome.setOnClickListener {
+            // Création de l'intent pour lancer la nouvelle activité
+            val intent = Intent(this, accueil::class.java)
+            startActivity(intent) // Lancement de l'activité
+        }
+            // Ajouter un tableau au clic du bouton
         addBoardButton.setOnClickListener {
             val boardName = boardNameEditText.text.toString().trim()
             if (boardName.isNotEmpty()) {
@@ -109,16 +115,45 @@ class BoardsActivity : AppCompatActivity() {
     }
 
     private fun addItemToBoard(boardName: String) {
-        val items = getItemsForBoard(boardName)
-        val newItem = "Nouvel item"
-        items.add(newItem)
-        saveItemsForBoard(boardName, items)
+        val itemName = boardName + " Item " + (getItemsForBoard(boardName).size + 1) // Générer un nom d'item par défaut
 
-        // Rechercher le conteneur d'items du tableau
-        val itemContainer = boardContainer.findViewWithTag<LinearLayout>(boardName)
-        addItemView(itemContainer, newItem)
-        Toast.makeText(this, "Item ajouté à '$boardName'", Toast.LENGTH_SHORT).show()
+        // Demander à l'utilisateur un nom personnalisé pour l'item
+        val itemNameEditText = EditText(this).apply {
+            hint = "Entrez le nom de l'item"
+        }
+
+        val itemNameButton = Button(this).apply {
+            text = "Ajouter l'item"
+            setOnClickListener {
+                val customItemName = itemNameEditText.text.toString().trim()
+
+                if (customItemName.isNotEmpty()) {
+                    val items = getItemsForBoard(boardName)
+                    items.add(customItemName)
+                    saveItemsForBoard(boardName, items)
+
+                    // Rechercher le conteneur d'items du tableau
+                    val itemContainer = boardContainer.findViewWithTag<LinearLayout>(boardName)
+                    addItemView(itemContainer, customItemName)
+                    Toast.makeText(this@BoardsActivity, "Item '$customItemName' ajouté", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@BoardsActivity, "Le nom de l'item ne peut pas être vide", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        // Afficher la boîte de saisie pour l'utilisateur
+        val itemLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(itemNameEditText)
+            addView(itemNameButton)
+        }
+
+        // Ajouter cette vue à l'interface (exemple : la position où l'ajouter dépend de la structure de ton layout)
+        val boardLayout = boardContainer.findViewWithTag<LinearLayout>(boardName)
+        boardLayout.addView(itemLayout)
     }
+
 
     private fun addItemView(itemContainer: LinearLayout, itemText: String) {
         val itemView = TextView(this).apply {

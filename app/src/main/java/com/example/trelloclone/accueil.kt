@@ -1,14 +1,13 @@
 package com.example.trelloclone
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +26,8 @@ class accueil : AppCompatActivity() {
 
         val createBoardButton = findViewById<Button>(R.id.createBoardButton)
         createBoardButton.setOnClickListener {
-            createNewBoard()
+            val intent = Intent(this, BoardsActivity::class.java)
+            startActivity(intent) // Lancement de l'activité
         }
 
         // Charger les tableaux au démarrage
@@ -68,6 +68,16 @@ class accueil : AppCompatActivity() {
                 marginEnd = 16
             }
             elevation = 8f // Ombre pour l'effet 3D
+            id = View.generateViewId() // Attribuer un ID unique pour pouvoir le supprimer plus tard
+        }
+
+        // Conteneur horizontal pour le titre et le bouton de suppression
+        val headerLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
 
         // Titre du tableau
@@ -76,7 +86,20 @@ class accueil : AppCompatActivity() {
             textSize = 18f
             setPadding(8, 8, 8, 8)
             gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
+
+        // Bouton de suppression
+        val deleteButton = Button(this).apply {
+            text = "🗑️"
+            setOnClickListener {
+                deleteBoard(boardName, boardLayout)
+            }
+        }
+
+        // Ajout du titre et du bouton de suppression au header
+        headerLayout.addView(boardTitle)
+        headerLayout.addView(deleteButton)
 
         // Bouton pour ajouter un item
         val addItemButton = Button(this).apply {
@@ -95,7 +118,8 @@ class accueil : AppCompatActivity() {
         // Charger les cartes du tableau
         loadItemsForBoard(itemsContainer, boardName)
 
-        boardLayout.addView(boardTitle)
+        // Ajouter les composants au layout du tableau
+        boardLayout.addView(headerLayout)
         boardLayout.addView(addItemButton)
         boardLayout.addView(itemsContainer)
 
@@ -130,6 +154,21 @@ class accueil : AppCompatActivity() {
             setBackgroundResource(android.R.color.darker_gray)
         }
         itemsContainer.addView(itemView)
+    }
+
+    private fun deleteBoard(boardName: String, boardLayout: LinearLayout) {
+        // 1️⃣ Supprimer la vue du tableau
+        boardContainer.removeView(boardLayout)
+
+        // 2️⃣ Supprimer le tableau des SharedPreferences
+        val boards = getBoards()
+        boards.remove(boardName)
+        saveBoards(boards)
+
+        // 3️⃣ Supprimer les items associés au tableau des SharedPreferences
+        sharedPreferences.edit().remove("$boardName-items").apply()
+
+        Toast.makeText(this, "Tableau '$boardName' supprimé", Toast.LENGTH_SHORT).show()
     }
 
     private fun getBoards(): MutableList<String> {
