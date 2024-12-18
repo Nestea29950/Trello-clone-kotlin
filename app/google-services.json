@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "901898469363",
+    "project_id": "kotlin-6b4fd",
+    "storage_bucket": "kotlin-6b4fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901898469363:android:403714462da84bf38e5c86",
+        "android_client_info": {
+          "package_name": "com.company.trelloclone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8I6_LrtFlycU_l9gRzFJwUopqlFMbEZk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901898469363:android:2ba56ae059b726408e5c86",
+        "android_client_info": {
+          "package_name": "com.example.trelloclone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8I6_LrtFlycU_l9gRzFJwUopqlFMbEZk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
